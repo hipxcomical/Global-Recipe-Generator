@@ -1,24 +1,26 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Recipe } from '../src/types';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+// Tell Vercel to run this function on the Edge Runtime
+export const runtime = 'edge';
+
+// The handler now uses the web standard Request and Response objects
+export default async function handler(req: Request) {
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
+    return new Response(`Method ${req.method} Not Allowed`, { status: 405, headers: { 'Allow': 'POST' } });
   }
 
   try {
-    const { ingredients, cuisine } = req.body;
+    const { ingredients, cuisine } = await req.json();
 
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
-      console.error("API_KEY environment variable not set in Vercel.");
-      return res.status(500).json({ error: 'The API key is not configured. Please add it to your Vercel project settings.' });
+      console.error("API_KEY environment variable not set.");
+      return new Response(JSON.stringify({ error: 'The API key is not configured on the server.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 
     if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
-      return res.status(400).json({ error: 'Ingredients are required.' });
+      return new Response(JSON.stringify({ error: 'Ingredients are required.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     
     const ai = new GoogleGenAI({ apiKey });
@@ -69,21 +71,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
     });
 
-    const jsonText = response.text.trim();
-    let recipes;
-    try {
-        recipes = JSON.parse(jsonText);
-    } catch (parseError) {
-        console.error('Failed to parse JSON response from Gemini:', jsonText);
-        // Log the text for debugging in Vercel logs
-        return res.status(500).json({ error: 'The AI returned an invalid response. Please check the server logs.' });
-    }
-    
-    return res.status(200).json(recipes);
+    // The Gemini API response text is already a valid JSON string, so we can pass it directly.
+    return new Response(response.text, { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
 
   } catch (error) {
-    console.error("Critical error in serverless function:", error);
+    console.error("Critical error in edge function:", error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
-    return res.status(500).json({ error: errorMessage });
+    return new Response(JSON.stringify({ error: errorMessage }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
 }
