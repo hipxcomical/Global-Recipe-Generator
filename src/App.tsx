@@ -7,6 +7,8 @@ import { Alert } from './components/Alert';
 import { Footer } from './components/Footer';
 import { generateRecipes } from './services/geminiService';
 import type { Recipe } from './types';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const App: React.FC = () => {
   const [ingredients, setIngredients] = useState<string[]>(['flour', 'sugar', 'eggs']);
@@ -95,6 +97,8 @@ const App: React.FC = () => {
         </div>
       </main>
       <Footer />
+      <Analytics />
+      <SpeedInsights />
     </div>
   );
 };
