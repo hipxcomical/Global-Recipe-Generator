@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An application that generates creative global and regional recipes based on the ingredients you have on hand, powered by the Gemini API.",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
