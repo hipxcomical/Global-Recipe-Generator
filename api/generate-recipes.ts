@@ -1,5 +1,4 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Recipe } from '../src/types';
 
 // Tell Vercel to run this function on the Edge Runtime for better performance and timeouts
 export const runtime = 'edge';
@@ -68,6 +67,12 @@ export async function POST(req: Request) {
     });
 
     const jsonText = response.text;
+
+    // This check handles potential undefined or empty string responses from the API, fixing the build error.
+    if (!jsonText) {
+      console.error("Received empty or undefined response text from Gemini API.");
+      throw new Error("The AI model returned an empty response. Please try again.");
+    }
 
     // Validate that the response from Gemini is valid JSON before sending it to the client.
     try {

@@ -11,16 +11,15 @@ export const generateRecipes = async (ingredients: string[], cuisine: string): P
 
     if (!response.ok) {
         let errorData;
-        try {
-            // Try to parse the error response as JSON, as our API route should provide it.
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+            // If the server sent a JSON error, parse it.
             errorData = await response.json();
-        } catch (e) {
-            // If the response is not JSON (e.g., a Vercel error page), use the status text.
-            console.error("Failed to parse error response as JSON.");
-            throw new Error(response.statusText || 'An unknown server error occurred.');
+            throw new Error(errorData.error || 'An unknown error occurred on the server.');
+        } else {
+            // If the server sent a non-JSON response (e.g., an HTML error page from Vercel), use status text.
+            throw new Error(response.statusText || 'The server returned an unexpected response.');
         }
-        // Use the error message from the API if available.
-        throw new Error(errorData.error || 'An error occurred while fetching recipes.');
     }
 
     try {
@@ -29,6 +28,6 @@ export const generateRecipes = async (ingredients: string[], cuisine: string): P
     } catch (error) {
         console.error("Failed to parse successful response as JSON:", error);
         // This can happen if the AI returns a malformed JSON despite the schema.
-        throw new Error("Received an invalid recipe format from the server.");
+        throw new Error("Received an invalid recipe format from the AI. Please try again.");
     }
 };

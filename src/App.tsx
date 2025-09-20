@@ -45,13 +45,8 @@ const App: React.FC = () => {
       const generatedRecipes = await generateRecipes(ingredients, selectedCuisine);
       setRecipes(generatedRecipes);
     } catch (err) {
-      // Check if the error is a SyntaxError from JSON.parse, and show a user-friendly message.
-      if (err instanceof SyntaxError) {
-          setError("Sorry, we received an invalid response from the server. This might be due to high traffic. Please try again in a moment.");
-      } else {
-          const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-          setError(`Sorry, we couldn't generate recipes. Reason: ${errorMessage}`);
-      }
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(`Sorry, we couldn't generate recipes. Reason: ${errorMessage}`);
       console.error(err);
     } finally {
       setIsLoading(false);
