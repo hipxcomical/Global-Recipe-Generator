@@ -45,7 +45,8 @@ const App: React.FC = () => {
       const generatedRecipes = await generateRecipes(ingredients, selectedCuisine);
       setRecipes(generatedRecipes);
     } catch (err) {
-      setError('Sorry, we couldn\'t generate recipes at the moment. Please try again later.');
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(`Sorry, we couldn't generate recipes. Reason: ${errorMessage}`);
       console.error(err);
     } finally {
       setIsLoading(false);
