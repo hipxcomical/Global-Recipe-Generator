@@ -1,13 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Recipe } from '../src/types';
 
-// Tell Vercel to run this function on the Edge Runtime
+// Tell Vercel to run this function on the Edge Runtime for better performance and timeouts
 export const runtime = 'edge';
 
-// The handler now uses the web standard Request and Response objects
+// The handler uses the web standard Request and Response objects
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {
-    return new Response(`Method ${req.method} Not Allowed`, { status: 405, headers: { 'Allow': 'POST' } });
+    return new Response(JSON.stringify({ error: `Method ${req.method} Not Allowed` }), { status: 405, headers: { 'Allow': 'POST', 'Content-Type': 'application/json' } });
   }
 
   try {
@@ -71,8 +71,19 @@ export default async function handler(req: Request) {
         },
     });
 
-    // The Gemini API response text is already a valid JSON string, so we can pass it directly.
-    return new Response(response.text, { 
+    const jsonText = response.text;
+
+    // Validate that the response from Gemini is valid JSON before sending it to the client.
+    try {
+        JSON.parse(jsonText); // This will throw an error if the text is not valid JSON.
+    } catch (e) {
+        console.error("Failed to parse JSON response from Gemini API.");
+        console.error("Raw Gemini response text:", jsonText);
+        throw new Error("The AI model returned a malformed response. Please try again.");
+    }
+
+    // If parsing was successful, send the valid JSON response to the client.
+    return new Response(jsonText, { 
       status: 200, 
       headers: { 'Content-Type': 'application/json' } 
     });
