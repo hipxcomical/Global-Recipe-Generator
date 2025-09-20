@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Recipe } from '../types';
+import type { Recipe } from '../src/types';
 
 // This is a Vercel Serverless Function that runs in a Node.js environment.
 // It creates a secure backend endpoint at /api/generate-recipes
