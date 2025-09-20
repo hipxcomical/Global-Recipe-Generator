@@ -4,12 +4,8 @@ import type { Recipe } from '../src/types';
 // Tell Vercel to run this function on the Edge Runtime for better performance and timeouts
 export const runtime = 'edge';
 
-// The handler uses the web standard Request and Response objects
-export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: `Method ${req.method} Not Allowed` }), { status: 405, headers: { 'Allow': 'POST', 'Content-Type': 'application/json' } });
-  }
-
+// This function will only handle POST requests to /api/generate-recipes
+export async function POST(req: Request) {
   try {
     const { ingredients, cuisine } = await req.json();
 
