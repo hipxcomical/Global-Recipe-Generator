@@ -53,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         The user has these ingredients available: ${ingredients.join(', ')}.
         The recipes can include other common pantry staples.
         Prioritize using the provided ingredients creatively.
+        IMPORTANT: For the 'difficulty' field in each recipe object, you MUST use one of the following exact string values: 'Easy', 'Medium', or 'Hard'.
         Ensure the output is a valid JSON array of recipe objects that adheres to the provided schema.
     `;
 
