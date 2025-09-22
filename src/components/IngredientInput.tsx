@@ -12,18 +12,50 @@ interface IngredientInputProps {
 }
 
 const cuisineOptions = [
-    'Global',
-    'Chettinad',
-    'Goan',
-    'Hyderabadi',
-    'Italian',
-    'Japanese',
-    'Mexican',
-    'Mughlai',
-    'Nepali',
-    'Punjabi',
-    'Telangana',
-    'Thai',
+  'Global',
+  // --- Americas ---
+  'American',
+  'Brazilian',
+  'Mexican',
+  'Peruvian',
+  // --- Asian ---
+  'Asian',
+  'Chinese',
+  'Indonesian',
+  'Japanese',
+  'Korean',
+  'Middle Eastern',
+  'Nepalese',
+  'Thai',
+  'Vietnamese',
+  // --- European ---
+  'European',
+  'French',
+  'German',
+  'Greek',
+  'Italian',
+  'Spanish',
+  // --- Indian ---
+  'Assamese',
+  'Awadhi (Lucknowi)',
+  'Bengali',
+  'Bihari',
+  'East Indian',
+  'Goan',
+  'Gujarati',
+  'Himachali',
+  'Karnataka',
+  'Kashmiri',
+  'Kerala',
+  'Maharashtrian',
+  'Meghalayan',
+  'Odia',
+  'Punjabi',
+  'Rajasthani',
+  'Sikkimese',
+  'Street Food (Delhi)',
+  'Tamil Nadu',
+  'Telangana and Andhra Pradesh',
 ];
 
 export const IngredientInput: React.FC<IngredientInputProps> = ({
@@ -63,6 +95,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
     }, 300); // Duration matches CSS transition
   };
 
+  // FIX: Corrected function definition from `().tsx` to `() => {` and added enclosing braces.
   const handleClearAll = () => {
     if (ingredients.length === 0 || isClearingAll || ingredientToRemove) return;
     setIsClearingAll(true);
