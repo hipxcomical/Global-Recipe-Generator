@@ -36,14 +36,22 @@ export async function POST(req: Request) {
                     learnMoreLink: { type: Type.STRING }
                 },
                 required: ["fact", "learnMoreLink"]
+            },
+            nutritionInfo: {
+                type: Type.OBJECT,
+                properties: {
+                    calories: { type: Type.STRING, description: "Estimated calories per serving, e.g., '450 kcal'" },
+                    protein: { type: Type.STRING, description: "Estimated protein per serving, e.g., '30g'" }
+                },
+                required: ["calories", "protein"]
             }
         },
-        required: ["recipeName", "description", "prepTime", "difficulty", "ingredients", "instructions", "cuisineOrigin"],
+        required: ["recipeName", "description", "prepTime", "difficulty", "ingredients", "instructions", "cuisineOrigin", "nutritionInfo"],
     };
 
     const basePrompt = cuisine === 'Global'
-      ? `You are a world-class chef and food historian specializing in global and regional cuisines. Based on the following ingredients, generate 3 diverse and delicious recipes from different parts of the world. For each recipe: - Briefly mention its origin or the cuisine it belongs to in the description. - Provide a short, interesting historical or cultural fact about the cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about the cuisine.`
-      : `You are a world-class chef and food historian specializing in authentic ${cuisine} cuisine. Based on the following ingredients, generate 3 delicious ${cuisine} recipes. For each recipe: - Briefly mention its significance or origin within ${cuisine} culture in the description. - Provide a short, interesting historical or cultural fact about ${cuisine} cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about ${cuisine} cuisine.`;
+      ? `You are a world-class chef and food historian specializing in global and regional cuisines. Based on the following ingredients, generate 3 diverse and delicious recipes from different parts of the world. For each recipe: - Briefly mention its origin or the cuisine it belongs to in the description. - Provide a short, interesting historical or cultural fact about the cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about the cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving.`
+      : `You are a world-class chef and food historian specializing in authentic ${cuisine} cuisine. Based on the following ingredients, generate 3 delicious ${cuisine} recipes. For each recipe: - Briefly mention its significance or origin within ${cuisine} culture in the description. - Provide a short, interesting historical or cultural fact about ${cuisine} cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about ${cuisine} cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving.`;
     
     const prompt = `
         ${basePrompt}
@@ -51,7 +59,7 @@ export async function POST(req: Request) {
         The recipes can include other common pantry staples.
         Prioritize using the provided ingredients creatively.
         IMPORTANT: For the 'difficulty' field in each recipe object, you MUST use one of the following exact string values: 'Easy', 'Medium', or 'Hard'.
-        Ensure the output is a valid JSON array of recipe objects that adheres to the provided schema.
+        Ensure the output is a valid JSON array of exactly 3 recipe objects that adheres to the provided schema.
     `;
 
     const response = await ai.models.generateContent({
@@ -68,23 +76,25 @@ export async function POST(req: Request) {
 
     const jsonText = response.text;
 
-    // This check handles potential undefined or empty string responses from the API, fixing the build error.
     if (!jsonText) {
       console.error("Received empty or undefined response text from Gemini API.");
       throw new Error("The AI model returned an empty response. Please try again.");
     }
-
-    // Validate that the response from Gemini is valid JSON before sending it to the client.
+    
+    let parsedRecipes;
     try {
-        JSON.parse(jsonText); // This will throw an error if the text is not valid JSON.
+        parsedRecipes = JSON.parse(jsonText);
     } catch (e) {
-        console.error("Failed to parse JSON response from Gemini API.");
-        console.error("Raw Gemini response text:", jsonText);
+        console.error("Failed to parse JSON response from Gemini API.", { rawResponse: jsonText });
         throw new Error("The AI model returned a malformed response. Please try again.");
     }
 
-    // If parsing was successful, send the valid JSON response to the client.
-    return new Response(jsonText, { 
+    if (!Array.isArray(parsedRecipes)) {
+      console.error("Parsed response from Gemini API is not an array.", { parsedResponse: parsedRecipes });
+      throw new Error("The AI model returned an unexpected data structure. Please try again.");
+    }
+
+    return new Response(JSON.stringify(parsedRecipes), { 
       status: 200, 
       headers: { 'Content-Type': 'application/json' } 
     });

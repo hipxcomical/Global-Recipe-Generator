@@ -34,8 +34,8 @@ const GeminiLogo = () => (
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full py-4 mt-12 bg-white/50 backdrop-blur-sm border-t border-gray-200/50 relative z-20">
-      <div className="container mx-auto px-4 flex items-center justify-center gap-2 text-gray-600">
+    <footer className="w-full py-4 mt-12 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-700/50 relative z-20 transition-colors duration-300">
+      <div className="container mx-auto px-4 flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
          <p>Powered by</p>
          <GeminiLogo />
          <p className="font-semibold">Gemini</p>

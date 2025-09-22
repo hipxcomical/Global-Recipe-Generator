@@ -73,17 +73,17 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200/50">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 transition-colors duration-300">
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
-            <label htmlFor="ingredient-input" className="block text-lg font-medium text-gray-700">
+            <label htmlFor="ingredient-input" className="block text-lg font-medium text-gray-700 dark:text-gray-200">
                 Your Ingredients
             </label>
             {ingredients.length > 0 && (
                 <button
                 onClick={handleClearAll}
                 disabled={isClearingAll || !!ingredientToRemove}
-                className="text-sm font-medium text-red-600 hover:text-red-800 focus:outline-none focus:underline disabled:text-red-300 disabled:cursor-not-allowed"
+                className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:underline disabled:text-red-300 disabled:cursor-not-allowed"
                 >
                 Clear All
                 </button>
@@ -97,11 +97,11 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
             onChange={(e) => setCurrentIngredient(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g., chicken breast, tomatoes"
-            className="flex-grow w-full px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition duration-200"
+            className="flex-grow w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 dark:placeholder-gray-400 transition-colors duration-200"
           />
           <button
             onClick={handleAdd}
-            className="w-full sm:w-auto px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform transform hover:scale-105"
+            className="w-full sm:w-auto px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform transform hover:scale-105"
           >
             Add
           </button>
@@ -112,7 +112,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
         {ingredients.length > 0 ? ingredients.map((ingredient) => (
           <span
             key={ingredient}
-            className={`flex items-center bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full animate-fade-in transition-all duration-300 ease-in-out transform ${
+            className={`flex items-center bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300 text-sm font-medium px-3 py-1 rounded-full animate-fade-in transition-all duration-300 ease-in-out transform ${
               (ingredientToRemove === ingredient || isClearingAll) ? 'opacity-0 scale-50' : 'opacity-100 scale-100'
             }`}
           >
@@ -120,26 +120,26 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
             <button
               onClick={() => handleRemove(ingredient)}
               disabled={!!ingredientToRemove || isClearingAll}
-              className="ml-2 text-green-600 hover:text-green-800 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ml-2 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &times;
             </button>
           </span>
         )) : (
-            <p className="text-gray-500 italic">No ingredients added yet.</p>
+            <p className="text-gray-500 dark:text-gray-400 italic">No ingredients added yet.</p>
         )}
       </div>
 
       <div className="flex justify-end mb-4">
           <div className="flex items-center gap-2">
-            <label htmlFor="cuisine-select" className="text-gray-700 font-medium">
+            <label htmlFor="cuisine-select" className="text-gray-700 dark:text-gray-200 font-medium">
               Cuisine Style:
             </label>
             <select
               id="cuisine-select"
               value={selectedCuisine}
               onChange={(e) => onCuisineChange(e.target.value)}
-              className="px-3 py-1.5 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition duration-200"
+              className="px-3 py-1.5 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition-colors duration-200"
             >
               {cuisineOptions.map((cuisine) => (
                 <option key={cuisine} value={cuisine}>
@@ -153,7 +153,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
       <button
         onClick={onGenerate}
         disabled={isLoading || ingredients.length === 0}
-        className="w-full py-3 px-6 bg-orange-500 text-white font-bold text-lg rounded-lg shadow-md hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 disabled:scale-100 flex items-center justify-center"
+        className="w-full py-3 px-6 bg-orange-500 text-white font-bold text-lg rounded-lg shadow-md hover:bg-orange-600 disabled:bg-orange-300 dark:disabled:bg-orange-500/50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 disabled:scale-100 flex items-center justify-center"
       >
         {isLoading ? 'Generating...' : 'Generate Recipes'}
       </button>

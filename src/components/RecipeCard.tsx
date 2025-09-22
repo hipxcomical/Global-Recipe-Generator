@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import type { Recipe } from '../types';
 
@@ -7,11 +5,13 @@ interface RecipeCardProps {
   recipe: Recipe;
 }
 
-const Tag: React.FC<{ label: string; value: string; color: 'blue' | 'purple' | 'green' }> = ({ label, value, color }) => {
+const Tag: React.FC<{ label: string; value: string; color: 'blue' | 'purple' | 'green' | 'orange' | 'red' }> = ({ label, value, color }) => {
     const colorClasses = {
-        blue: 'bg-blue-100 text-blue-800',
-        purple: 'bg-purple-100 text-purple-800',
-        green: 'bg-green-100 text-green-800',
+        blue: 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300',
+        purple: 'bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-300',
+        green: 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300',
+        orange: 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-300',
+        red: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300',
     };
     return (
         <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${colorClasses[color]}`}>
@@ -21,13 +21,13 @@ const Tag: React.FC<{ label: string; value: string; color: 'blue' | 'purple' | '
 };
 
 const CuisineSpotlight: React.FC<{ origin: Recipe['cuisineOrigin'] }> = ({ origin }) => (
-    <div className="mt-6 p-4 bg-orange-50/70 rounded-lg border border-orange-200">
-      <h4 className="text-md font-bold text-orange-800 mb-2">Cuisine Spotlight</h4>
+    <div className="mt-6 p-4 bg-orange-50/70 dark:bg-orange-500/10 rounded-lg border border-orange-200 dark:border-orange-500/20">
+      <h4 className="text-md font-bold text-orange-800 dark:text-orange-300 mb-2">Cuisine Spotlight</h4>
       <div className="flex items-start gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-orange-500 dark:text-orange-400 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 10.607a1 1 0 011.414 0l.707-.707a1 1 0 111.414 1.414l-.707.707a1 1 0 01-1.414 0zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
         </svg>
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-gray-700 dark:text-gray-300">
             <span className="font-semibold">Did you know?</span> {origin.fact}
         </p>
       </div>
@@ -35,7 +35,7 @@ const CuisineSpotlight: React.FC<{ origin: Recipe['cuisineOrigin'] }> = ({ origi
           href={origin.learnMoreLink} 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="inline-block mt-3 text-sm font-medium text-orange-600 hover:text-orange-800 hover:underline transition-colors"
+          className="inline-block mt-3 text-sm font-medium text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 hover:underline transition-colors"
       >
           Learn more about this cuisine &rarr;
       </a>
@@ -86,6 +86,12 @@ ${recipe.description}
 
 --------------------
 
+NUTRITION (Approx. per serving):
+Calories: ${recipe.nutritionInfo.calories}
+Protein: ${recipe.nutritionInfo.protein}
+
+--------------------
+
 INGREDIENTS:
 ${recipe.ingredients.map(ing => `- ${ing}`).join('\n')}
 
@@ -124,39 +130,46 @@ Shared from hipxcomical Recipe Generator!
     const baseClasses = "flex items-center justify-center px-4 py-2 font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200";
     switch(copyStatus) {
         case 'copied':
-            return `${baseClasses} bg-green-100 text-green-700 focus:ring-green-400`;
+            return `${baseClasses} bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300 focus:ring-green-400`;
         case 'failed':
-            return `${baseClasses} bg-red-100 text-red-700 focus:ring-red-400`;
+            return `${baseClasses} bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300 focus:ring-red-400`;
         default:
-            return `${baseClasses} bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400`;
+            return `${baseClasses} bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-400`;
     }
   }
   
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden flex flex-col transition-transform transform hover:scale-[1.02] hover:shadow-2xl duration-300">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 overflow-hidden flex flex-col transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl dark:hover:shadow-orange-500/10">
       <div className="p-6 flex-grow flex flex-col">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{recipe.recipeName}</h2>
-        <p className="text-gray-600 mb-4">{recipe.description}</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-2">{recipe.recipeName}</h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">{recipe.description}</p>
         
         <div className="flex flex-wrap gap-2 mb-2">
             <Tag label="Time" value={recipe.prepTime} color="blue" />
             <Tag label="Difficulty" value={recipe.difficulty} color="purple" />
         </div>
         
+        {recipe.nutritionInfo && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Tag label="Calories" value={recipe.nutritionInfo.calories} color="orange" />
+            <Tag label="Protein" value={recipe.nutritionInfo.protein} color="red" />
+          </div>
+        )}
+
         {recipe.cuisineOrigin && <CuisineSpotlight origin={recipe.cuisineOrigin} />}
 
         <div className="space-y-4 mt-6 flex-grow">
             <div>
-                <h3 className="text-lg font-semibold text-gray-800 border-b-2 border-orange-200 pb-1 mb-2">Ingredients</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 border-b-2 border-orange-200 dark:border-orange-500/50 pb-1 mb-2">Ingredients</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
                     {recipe.ingredients.map((ingredient, index) => (
                         <li key={index}>{ingredient}</li>
                     ))}
                 </ul>
             </div>
             <div>
-                <h3 className="text-lg font-semibold text-gray-800 border-b-2 border-orange-200 pb-1 mb-2">Instructions</h3>
-                <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 border-b-2 border-orange-200 dark:border-orange-500/50 pb-1 mb-2">Instructions</h3>
+                <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
                     {recipe.instructions.map((instruction, index) => (
                         <li key={index}>{instruction}</li>
                     ))}
@@ -164,7 +177,7 @@ Shared from hipxcomical Recipe Generator!
             </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700/50 flex justify-end">
             <button
                 onClick={handleShare}
                 className={getButtonClasses()}
