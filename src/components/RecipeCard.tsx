@@ -140,7 +140,6 @@ Shared from hipxcomical Recipe Generator!
   
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 overflow-hidden flex flex-col transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl dark:hover:shadow-orange-500/10">
-      <img src={recipe.imageUrl} alt={`An image of ${recipe.recipeName}`} className="w-full h-48 object-cover" loading="lazy" />
       <div className="p-6 flex-grow flex flex-col">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-2">{recipe.recipeName}</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-4">{recipe.description}</p>

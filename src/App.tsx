@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { IngredientInput } from './components/IngredientInput';
 import { RecipeCard } from './components/RecipeCard';
-import { Spinner } from './components/Spinner';
+import { RecipeCardSkeleton } from './components/RecipeCardSkeleton';
 import { Alert } from './components/Alert';
 import { Footer } from './components/Footer';
 import { generateRecipes } from './services/geminiService';
@@ -13,7 +13,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 type Theme = 'light' | 'dark';
 
 const App: React.FC = () => {
-  const [ingredients, setIngredients] = useState<string[]>(['flour', 'sugar', 'eggs']);
+  const [ingredients, setIngredients] = useState<string[]>(['onion', 'garlic', 'tomatoes']);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,7 @@ const App: React.FC = () => {
 
   const addIngredient = (ingredient: string) => {
     if (ingredient && !ingredients.includes(ingredient.toLowerCase())) {
-      setIngredients([...ingredients, ingredient.toLowerCase()]);
+      setIngredients(prevIngredients => [...prevIngredients, ingredient.toLowerCase()]);
     }
   };
 
@@ -74,16 +74,31 @@ const App: React.FC = () => {
     }
   }, [ingredients, selectedCuisine]);
   
-  const WelcomeMessage = () => (
-    <div className="text-center p-8 bg-white/50 dark:bg-gray-800/50 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 backdrop-blur-sm">
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">Discover Your Next Favorite Dish</h2>
-        <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Welcome to the hipxcomical Recipe Generator! Add the ingredients you have, select a cuisine style,
-            and let our AI chef inspire you with delicious recipes from around the world or a specific region.
-            Let's get cooking!
-        </p>
-    </div>
-  );
+  const WelcomeMessage = () => {
+    const exampleIngredients = ['Chicken', 'Tomatoes', 'Rice', 'Onions', 'Cheese'];
+    
+    return (
+      <div className="text-center p-8 bg-white/50 dark:bg-gray-800/50 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 backdrop-blur-sm">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">Discover Your Next Favorite Dish</h2>
+          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+              Welcome to the hipxcomical Recipe Generator! Add the ingredients you have, select a cuisine style,
+              and let our AI chef inspire you.
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-3">
+            <p className="text-gray-700 dark:text-gray-300 font-medium">Try adding:</p>
+            {exampleIngredients.map(ing => (
+              <button
+                key={ing}
+                onClick={() => addIngredient(ing)}
+                className="px-4 py-1.5 bg-orange-100/80 dark:bg-orange-500/20 text-orange-800 dark:text-orange-300 font-semibold rounded-full hover:bg-orange-200/80 dark:hover:bg-orange-500/30 transition-colors transform hover:scale-105"
+              >
+                {ing}
+              </button>
+            ))}
+          </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex flex-col transition-colors duration-300">
@@ -107,14 +122,20 @@ const App: React.FC = () => {
 
           {error && <Alert message={error} />}
 
-          {isLoading && <Spinner />}
-
           {!isLoading && !error && recipes.length === 0 && <WelcomeMessage />}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {recipes.map((recipe, index) => (
-              <RecipeCard key={index} recipe={recipe} />
-            ))}
+            {isLoading ? (
+              <>
+                <RecipeCardSkeleton />
+                <RecipeCardSkeleton />
+                <RecipeCardSkeleton />
+              </>
+            ) : (
+              recipes.map((recipe, index) => (
+                <RecipeCard key={index} recipe={recipe} />
+              ))
+            )}
           </div>
         </div>
       </main>
