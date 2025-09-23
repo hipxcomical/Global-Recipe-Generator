@@ -278,7 +278,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
         disabled={isLoading || ingredients.length === 0}
         className="w-full py-3 px-6 bg-orange-500 text-white font-bold text-lg rounded-lg shadow-md hover:bg-orange-600 disabled:bg-orange-300 dark:disabled:bg-orange-500/50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 disabled:scale-100 flex items-center justify-center"
       >
-        {isLoading ? 'Generating...' : 'Generate Recipes'}
+        {isLoading ? <span className="animate-pulse">Generating...</span> : 'Generate Recipes'}
       </button>
     </div>
   );

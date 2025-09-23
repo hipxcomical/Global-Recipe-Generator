@@ -42,6 +42,30 @@ const CuisineSpotlight: React.FC<{ origin: Recipe['cuisineOrigin'] }> = ({ origi
     </div>
 );
 
+const LightBulbIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.657a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 14.95a1 1 0 001.414 1.414l.707-.707a1 1 0 00-1.414-1.414l-.707.707zM4 10a1 1 0 01-1 1H2a1 1 0 110-2h1a1 1 0 011 1zM10 18a1 1 0 001-1v-1a1 1 0 10-2 0v1a1 1 0 001 1zM8.94 15.06A4.002 4.002 0 0110 7a4 4 0 015 3.5a4.002 4.002 0 01-2.94 3.94.5.5 0 10.48.865A5.002 5.002 0 0016 10.5a5 5 0 00-10 0c0 .99.29 1.92.8 2.71.24.364.79.462 1.14.25z" />
+    </svg>
+);
+
+const SparklesIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935L11.033 2.744A1 1 0 0112 2z" clipRule="evenodd" />
+    </svg>
+);
+
+
+const ProTip: React.FC<{ icon: JSX.Element; title: string; content: string }> = ({ icon, title, content }) => (
+    <div className="flex items-start gap-3 mt-3">
+        <span className="flex-shrink-0 mt-1 text-green-500 dark:text-green-400">{icon}</span>
+        <div>
+            <h5 className="font-semibold text-gray-800 dark:text-gray-100">{title}</h5>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{content}</p>
+        </div>
+    </div>
+);
+
+
 const ShareIcon: React.FC = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
         <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
@@ -86,19 +110,28 @@ ${recipe.description}
 
 --------------------
 
-NUTRITION (Approx. per serving):
-Calories: ${recipe.nutritionInfo.calories}
-Protein: ${recipe.nutritionInfo.protein}
-
---------------------
+KITCHEN TOOLS:
+${recipe.kitchenTools.map(tool => `- ${tool}`).join('\n')}
 
 INGREDIENTS:
 ${recipe.ingredients.map(ing => `- ${ing}`).join('\n')}
 
---------------------
-
 INSTRUCTIONS:
 ${recipe.instructions.map((inst, index) => `${index + 1}. ${inst}`).join('\n')}
+
+--------------------
+
+CHEF'S TIP:
+${recipe.chefsTip}
+
+CREATIVE VARIATION:
+${recipe.creativeVariation}
+
+--------------------
+
+NUTRITION (Approx. per serving):
+Calories: ${recipe.nutritionInfo.calories}
+Protein: ${recipe.nutritionInfo.protein}
 
 Shared from hipxcomical Recipe Generator!
         `.trim();
@@ -140,7 +173,6 @@ Shared from hipxcomical Recipe Generator!
   
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 overflow-hidden flex flex-col transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl dark:hover:shadow-orange-500/10">
-      <img src={recipe.imageUrl} alt={`An image of ${recipe.recipeName}`} className="w-full h-48 object-cover" loading="lazy" />
       <div className="p-6 flex-grow flex flex-col">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50 mb-2">{recipe.recipeName}</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-4">{recipe.description}</p>
@@ -161,6 +193,14 @@ Shared from hipxcomical Recipe Generator!
 
         <div className="space-y-4 mt-6 flex-grow">
             <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 border-b-2 border-orange-200 dark:border-orange-500/50 pb-1 mb-2">Kitchen Tools</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
+                    {recipe.kitchenTools.map((tool, index) => (
+                        <li key={index}>{tool}</li>
+                    ))}
+                </ul>
+            </div>
+            <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 border-b-2 border-orange-200 dark:border-orange-500/50 pb-1 mb-2">Ingredients</h3>
                 <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
                     {recipe.ingredients.map((ingredient, index) => (
@@ -177,6 +217,13 @@ Shared from hipxcomical Recipe Generator!
                 </ol>
             </div>
         </div>
+
+        <div className="mt-6 p-4 bg-green-50/70 dark:bg-green-500/10 rounded-lg border border-green-200 dark:border-green-500/20">
+            <h4 className="text-md font-bold text-green-800 dark:text-green-300 mb-2">Chef's Corner</h4>
+            <ProTip icon={<LightBulbIcon />} title="Chef's Tip" content={recipe.chefsTip} />
+            <ProTip icon={<SparklesIcon />} title="Creative Variation" content={recipe.creativeVariation} />
+        </div>
+
 
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700/50 flex justify-end">
             <button

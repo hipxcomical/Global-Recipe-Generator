@@ -26,7 +26,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
   return (
-    <header className="py-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-md border-b border-gray-200/80 dark:border-gray-700/80 relative z-20 transition-colors duration-300">
+    <header className="py-6 bg-gradient-to-b from-white to-gray-50/90 dark:from-gray-900 dark:to-gray-800/95 backdrop-blur-lg shadow-md border-b border-gray-200/80 dark:border-gray-700/80 relative z-20 transition-colors duration-300">
       <div className="container mx-auto px-4 flex items-center justify-between">
         <div className="flex-1"></div> {/* Spacer */}
         <div className="flex items-center justify-center gap-4 flex-1">

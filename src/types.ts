@@ -16,7 +16,9 @@ export interface Recipe {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   ingredients: string[];
   instructions: string[];
+  kitchenTools: string[];
   cuisineOrigin: CuisineOrigin;
   nutritionInfo: NutritionInfo;
-  imageUrl: string;
+  chefsTip: string;
+  creativeVariation: string;
 }

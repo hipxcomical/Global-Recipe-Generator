@@ -5,6 +5,7 @@ import { RecipeCard } from './components/RecipeCard';
 import { RecipeCardSkeleton } from './components/RecipeCardSkeleton';
 import { Alert } from './components/Alert';
 import { Footer } from './components/Footer';
+import { BackToTopButton } from './components/BackToTopButton';
 import { generateRecipes } from './services/geminiService';
 import type { Recipe } from './types';
 import { Analytics } from '@vercel/analytics/react';
@@ -124,22 +125,18 @@ const App: React.FC = () => {
 
           {!isLoading && !error && recipes.length === 0 && <WelcomeMessage />}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {isLoading ? (
-              <>
-                <RecipeCardSkeleton />
-                <RecipeCardSkeleton />
-                <RecipeCardSkeleton />
-              </>
-            ) : (
-              recipes.map((recipe, index) => (
-                <RecipeCard key={index} recipe={recipe} />
-              ))
-            )}
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            aria-live="polite"
+          >
+            {isLoading
+              ? Array.from({ length: 4 }).map((_, index) => <RecipeCardSkeleton key={index} />)
+              : recipes.map((recipe, index) => <RecipeCard key={index} recipe={recipe} />)}
           </div>
         </div>
       </main>
       <Footer />
+      <BackToTopButton />
       <Analytics />
       <SpeedInsights />
     </div>
