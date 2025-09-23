@@ -18,4 +18,5 @@ export interface Recipe {
   instructions: string[];
   cuisineOrigin: CuisineOrigin;
   nutritionInfo: NutritionInfo;
+  imageUrl: string;
 }

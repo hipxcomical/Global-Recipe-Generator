@@ -21,10 +21,11 @@ const cuisineOptions = [
     'Mexican',
     'Mughlai',
     'Nepali',
+    'North-East Indian',
     'Punjabi',
     'Telangana',
     'Thai',
-];
+].sort((a, b) => a === 'Global' ? -1 : b === 'Global' ? 1 : a.localeCompare(b));
 
 export const IngredientInput: React.FC<IngredientInputProps> = ({
   ingredients,

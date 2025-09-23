@@ -4,6 +4,11 @@ export interface CuisineOrigin {
   learnMoreLink: string;
 }
 
+export interface NutritionInfo {
+  calories: string;
+  protein: string;
+}
+
 export interface Recipe {
   recipeName: string;
   description: string;
@@ -12,4 +17,6 @@ export interface Recipe {
   ingredients: string[];
   instructions: string[];
   cuisineOrigin: CuisineOrigin;
+  nutritionInfo: NutritionInfo;
+  imageUrl: string;
 }

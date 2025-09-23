@@ -6,11 +6,13 @@ interface RecipeCardProps {
   recipe: Recipe;
 }
 
-const Tag: React.FC<{ label: string; value: string; color: 'blue' | 'purple' | 'green' }> = ({ label, value, color }) => {
+const Tag: React.FC<{ label: string; value: string; color: 'blue' | 'purple' | 'green' | 'orange' | 'red' }> = ({ label, value, color }) => {
     const colorClasses = {
         blue: 'bg-blue-100 text-blue-800',
         purple: 'bg-purple-100 text-purple-800',
         green: 'bg-green-100 text-green-800',
+        orange: 'bg-orange-100 text-orange-800',
+        red: 'bg-red-100 text-red-800',
     };
     return (
         <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${colorClasses[color]}`}>
@@ -85,6 +87,12 @@ ${recipe.description}
 
 --------------------
 
+NUTRITION (Approx. per serving):
+Calories: ${recipe.nutritionInfo.calories}
+Protein: ${recipe.nutritionInfo.protein}
+
+--------------------
+
 INGREDIENTS:
 ${recipe.ingredients.map(ing => `- ${ing}`).join('\n')}
 
@@ -133,6 +141,7 @@ Shared from hipxcomical Recipe Generator!
   
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden flex flex-col transition-transform transform hover:scale-[1.02] hover:shadow-2xl duration-300">
+      <img src={recipe.imageUrl} alt={`An image of ${recipe.recipeName}`} className="w-full h-48 object-cover" loading="lazy" />
       <div className="p-6 flex-grow flex flex-col">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{recipe.recipeName}</h2>
         <p className="text-gray-600 mb-4">{recipe.description}</p>
@@ -142,6 +151,13 @@ Shared from hipxcomical Recipe Generator!
             <Tag label="Difficulty" value={recipe.difficulty} color="purple" />
         </div>
         
+        {recipe.nutritionInfo && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Tag label="Calories" value={recipe.nutritionInfo.calories} color="orange" />
+            <Tag label="Protein" value={recipe.nutritionInfo.protein} color="red" />
+          </div>
+        )}
+
         {recipe.cuisineOrigin && <CuisineSpotlight origin={recipe.cuisineOrigin} />}
 
         <div className="space-y-4 mt-6 flex-grow">

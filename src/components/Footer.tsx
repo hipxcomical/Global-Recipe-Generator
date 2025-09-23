@@ -35,10 +35,21 @@ const GeminiLogo = () => (
 export const Footer: React.FC = () => {
   return (
     <footer className="w-full py-4 mt-12 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-700/50 relative z-20 transition-colors duration-300">
-      <div className="container mx-auto px-4 flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-         <p>Powered by</p>
-         <GeminiLogo />
-         <p className="font-semibold">Gemini</p>
+      <div className="container mx-auto px-4 flex flex-col items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
+         <div className="flex items-center justify-center gap-2">
+            <p>Powered by</p>
+            <GeminiLogo />
+            <p className="font-semibold">Gemini</p>
+         </div>
+         <div className="mt-1 text-sm">
+            <a 
+                href="mailto:hipxcomical@gmail.com?subject=Feedback for Recipe Generator"
+                className="text-gray-500 dark:text-gray-400 hover:underline"
+                aria-label="Send feedback via email"
+            >
+                Send Feedback
+            </a>
+         </div>
       </div>
     </footer>
   );

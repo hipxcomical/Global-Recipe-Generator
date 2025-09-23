@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 interface IngredientInputProps {
   ingredients: string[];
@@ -11,52 +11,65 @@ interface IngredientInputProps {
   onCuisineChange: (cuisine: string) => void;
 }
 
-const cuisineOptions = [
-  'Global',
-  // --- Americas ---
-  'American',
-  'Brazilian',
-  'Mexican',
-  'Peruvian',
-  // --- Asian ---
-  'Asian',
-  'Chinese',
-  'Indonesian',
-  'Japanese',
-  'Korean',
-  'Middle Eastern',
-  'Nepalese',
-  'Thai',
-  'Vietnamese',
-  // --- European ---
-  'European',
-  'French',
-  'German',
-  'Greek',
-  'Italian',
-  'Spanish',
-  // --- Indian ---
-  'Assamese',
-  'Awadhi (Lucknowi)',
-  'Bengali',
-  'Bihari',
-  'East Indian',
-  'Goan',
-  'Gujarati',
-  'Himachali',
-  'Karnataka',
-  'Kashmiri',
-  'Kerala',
-  'Maharashtrian',
-  'Meghalayan',
-  'Odia',
-  'Punjabi',
-  'Rajasthani',
-  'Sikkimese',
-  'Street Food (Delhi)',
-  'Tamil Nadu',
-  'Telangana and Andhra Pradesh',
+const COMMON_INGREDIENTS = [
+  'Salt', 'Pepper', 'Olive Oil', 'Garlic', 'Onion', 'Flour', 'Sugar', 'Eggs', 'Butter', 'Milk',
+  'Rice', 'Pasta', 'Tomatoes', 'Potatoes', 'Chicken Breast', 'Ground Beef', 'Lettuce', 'Cheese',
+  'Bread', 'Lemon', 'Lime', 'Soy Sauce', 'Ginger', 'Cilantro', 'Parsley', 'Basil', 'Oregano',
+  'Thyme', 'Rosemary', 'Cumin', 'Coriander', 'Paprika', 'Chili Powder', 'Cayenne Pepper',
+  'Baking Soda', 'Baking Powder', 'Vanilla Extract', 'Honey', 'Maple Syrup', 'Vinegar',
+  'Mustard', 'Mayonnaise', 'Ketchup', 'Yogurt', 'Sour Cream', 'Heavy Cream', 'Carrots',
+  'Celery', 'Bell Peppers', 'Mushrooms', 'Spinach', 'Broccoli', 'Avocado', 'Cucumber',
+  'Zucchini', 'Eggplant', 'Cabbage', 'Cauliflower', 'Beans', 'Lentils', 'Chickpeas', 'Quinoa',
+  // Indian specifics
+  'Ghee', 'Turmeric', 'Garam Masala', 'Cardamom', 'Cloves', 'Cinnamon', 'Fenugreek', 'Asafoetida',
+  'Paneer', 'Basmati Rice', 'Mustard Seeds', 'Tamarind', 'Coconut Milk',
+  // Asian specifics
+  'Sesame Oil', 'Rice Vinegar', 'Fish Sauce', 'Sriracha', 'Hoisin Sauce', 'Tofu', 'Noodles',
+  'Scallions', 'Bok Choy', 'Edamame', 'Miso Paste',
+  // Mexican specifics
+  'Corn Tortillas', 'Black Beans', 'Jalapeño', 'Cotija Cheese', 'Salsa', 'Chipotle',
+  // Italian specifics
+  'Parmesan Cheese', 'Mozzarella', 'Balsamic Vinegar', 'Prosciutto', 'Arborio Rice'
+].sort();
+
+
+const cuisineGroups = [
+  { 
+    label: 'General', 
+    options: ['Global'] 
+  },
+  { 
+    label: 'Indian Subcontinent', 
+    options: [
+      'Assamese', 'Awadhi (Lucknowi)', 'Bengali', 'Bihari', 'East Indian', 'Goan', 
+      'Gujarati', 'Himachali', 'Hyderabadi', 'Karnataka', 'Kashmiri', 'Kerala', 
+      'Maharashtrian', 'Meghalayan', 'Nepalese', 'North-East Indian', 'Odia', 'Punjabi', 
+      'Rajasthani', 'Sikkimese', 'Street Food (Delhi)', 'Tamil Nadu', 'Telangana and Andhra Pradesh'
+    ].sort() 
+  },
+  {
+    label: 'East & Southeast Asian',
+    options: ['Asian', 'Chinese', 'Indonesian', 'Japanese', 'Korean', 'Thai', 'Vietnamese'].sort()
+  },
+  {
+    label: 'European',
+    options: ['European', 'French', 'German', 'Greek', 'Italian', 'Spanish'].sort()
+  },
+  {
+    label: 'Americas',
+    options: ['American', 'Brazilian', 'Mexican', 'Peruvian'].sort()
+  },
+  {
+    label: 'Middle Eastern',
+    options: ['Middle Eastern']
+  }
 ];
+
+const PlusIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+    </svg>
+);
 
 export const IngredientInput: React.FC<IngredientInputProps> = ({
   ingredients,
@@ -71,16 +84,58 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
   const [currentIngredient, setCurrentIngredient] = useState('');
   const [ingredientToRemove, setIngredientToRemove] = useState<string | null>(null);
   const [isClearingAll, setIsClearingAll] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleAdd = () => {
-    if (currentIngredient.trim()) {
-      onAddIngredient(currentIngredient.trim());
-      setCurrentIngredient('');
+  const resetInput = useCallback(() => {
+    setCurrentIngredient('');
+    setShowSuggestions(false);
+    setSuggestions([]);
+  }, []);
+  
+  const handleAdd = useCallback((ingredientToAdd?: string) => {
+    const ingredient = (ingredientToAdd || currentIngredient).trim();
+    if (ingredient) {
+      onAddIngredient(ingredient);
+      resetInput();
+    }
+  }, [currentIngredient, onAddIngredient, resetInput]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCurrentIngredient(value);
+
+    if (value.length > 0) {
+      const filtered = COMMON_INGREDIENTS.filter(
+        (suggestion) => 
+          suggestion.toLowerCase().startsWith(value.toLowerCase()) && 
+          !ingredients.includes(suggestion.toLowerCase())
+      ).slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+      setActiveSuggestionIndex(0);
+    } else {
+      setShowSuggestions(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (showSuggestions && suggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActiveSuggestionIndex(prev => (prev + 1) % suggestions.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActiveSuggestionIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAdd(suggestions[activeSuggestionIndex]);
+      } else if (e.key === 'Escape') {
+        setShowSuggestions(false);
+      }
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       handleAdd();
     }
@@ -94,8 +149,7 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
       setIngredientToRemove(null);
     }, 300); // Duration matches CSS transition
   };
-
-  // FIX: Corrected function definition from `().tsx` to `() => {` and added enclosing braces.
+  
   const handleClearAll = () => {
     if (ingredients.length === 0 || isClearingAll || ingredientToRemove) return;
     setIsClearingAll(true);
@@ -105,9 +159,19 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
     }, 300); // Duration matches CSS transition
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700 transition-colors duration-300">
-      <div className="mb-4">
+      <div className="mb-4" ref={containerRef}>
         <div className="flex justify-between items-center mb-2">
             <label htmlFor="ingredient-input" className="block text-lg font-medium text-gray-700 dark:text-gray-200">
                 Your Ingredients
@@ -122,22 +186,44 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
                 </button>
             )}
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            id="ingredient-input"
-            type="text"
-            value={currentIngredient}
-            onChange={(e) => setCurrentIngredient(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="e.g., chicken breast, tomatoes"
-            className="flex-grow w-full px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 dark:placeholder-gray-400 transition-colors duration-200"
-          />
-          <button
-            onClick={handleAdd}
-            className="w-full sm:w-auto px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform transform hover:scale-105"
-          >
-            Add
-          </button>
+        <div className="relative">
+            <div className="flex flex-col sm:flex-row gap-2 items-center">
+                <input
+                    id="ingredient-input"
+                    type="text"
+                    value={currentIngredient}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    placeholder="e.g., chicken breast, tomatoes"
+                    className="flex-grow w-full px-4 h-12 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 dark:placeholder-gray-400 transition-colors duration-200"
+                    autoComplete="off"
+                />
+                <button
+                    onClick={() => handleAdd()}
+                    aria-label="Add ingredient"
+                    className="w-full sm:w-12 h-12 flex-shrink-0 flex items-center justify-center bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-transform transform hover:scale-105 disabled:opacity-50"
+                    disabled={!currentIngredient.trim()}
+                >
+                    <PlusIcon />
+                </button>
+            </div>
+            {showSuggestions && suggestions.length > 0 && (
+                <ul className="absolute z-10 w-full sm:w-[calc(100%-3.5rem)] bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1 shadow-lg max-h-60 overflow-y-auto">
+                    {suggestions.map((suggestion, index) => (
+                        <li
+                        key={suggestion}
+                        className={`px-4 py-2 cursor-pointer text-gray-700 dark:text-gray-200 ${
+                            index === activeSuggestionIndex
+                            ? 'bg-orange-100 dark:bg-orange-500/30'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600'
+                        }`}
+                        onClick={() => handleAdd(suggestion)}
+                        >
+                        {suggestion}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
       </div>
       
@@ -174,10 +260,14 @@ export const IngredientInput: React.FC<IngredientInputProps> = ({
               onChange={(e) => onCuisineChange(e.target.value)}
               className="px-3 py-1.5 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition-colors duration-200"
             >
-              {cuisineOptions.map((cuisine) => (
-                <option key={cuisine} value={cuisine}>
-                  {cuisine === 'Global' ? `${cuisine} (Default)` : cuisine}
-                </option>
+              {cuisineGroups.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.options.map((cuisine) => (
+                    <option key={cuisine} value={cuisine}>
+                      {cuisine === 'Global' ? `${cuisine} (Default)` : cuisine}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>

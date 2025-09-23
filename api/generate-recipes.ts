@@ -44,20 +44,21 @@ export async function POST(req: Request) {
                     protein: { type: Type.STRING, description: "Estimated protein per serving, e.g., '30g'" }
                 },
                 required: ["calories", "protein"]
-            }
+            },
+            imageUrl: { type: Type.STRING, description: "A beautiful, royalty-free image URL for the dish. e.g., https://source.unsplash.com/800x600/?biryani,rice" }
         },
-        required: ["recipeName", "description", "prepTime", "difficulty", "ingredients", "instructions", "cuisineOrigin", "nutritionInfo"],
+        required: ["recipeName", "description", "prepTime", "difficulty", "ingredients", "instructions", "cuisineOrigin", "nutritionInfo", "imageUrl"],
     };
 
     const basePrompt = cuisine === 'Global'
-      ? `You are a world-class chef and food historian specializing in global and regional cuisines. Based on the following ingredients, generate 3 diverse and delicious recipes from different parts of the world. For each recipe: - Briefly mention its origin or the cuisine it belongs to in the description. - Provide a short, interesting historical or cultural fact about the cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about the cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving.`
-      : `You are a world-class chef and food historian specializing in authentic ${cuisine} cuisine. Based on the following ingredients, generate 3 delicious ${cuisine} recipes. For each recipe: - Briefly mention its significance or origin within ${cuisine} culture in the description. - Provide a short, interesting historical or cultural fact about ${cuisine} cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about ${cuisine} cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving.`;
+      ? `You are a world-class chef and food historian specializing in global and regional cuisines. Based on the following ingredients, generate 3 diverse and delicious recipes from different parts of the world. For each recipe: - Briefly mention its origin or the cuisine it belongs to in the description. - Provide a short, interesting historical or cultural fact about the cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about the cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving. - Generate a visually appealing, royalty-free image URL for the dish. The URL must be from source.unsplash.com, formatted as https://source.unsplash.com/800x600/?<dish-name>, replacing <dish-name> with 1-3 relevant, concise, comma-separated keywords for the recipe (e.g., 'biryani,rice', 'pasta,carbonara').`
+      : `You are a world-class chef and food historian specializing in authentic ${cuisine} cuisine. Based on the following ingredients, generate 3 delicious ${cuisine} recipes. For each recipe: - Briefly mention its significance or origin within ${cuisine} culture in the description. - Provide a short, interesting historical or cultural fact about ${cuisine} cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about ${cuisine} cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving. - Generate a visually appealing, royalty-free image URL for the dish. The URL must be from source.unsplash.com, formatted as https://source.unsplash.com/800x600/?<dish-name>, replacing <dish-name> with 1-3 relevant, concise, comma-separated keywords for the recipe (e.g., 'Hyderabadi,biryani').`;
     
     const prompt = `
         ${basePrompt}
         The user has these ingredients available: ${ingredients.join(', ')}.
         The recipes can include other common pantry staples.
-        Prioritize using the provided ingredients creatively.
+        Prioritize using the provided ingredients creatively. Be inventive and suggest dishes that offer a unique twist or are less commonly known, while still being accessible to a home cook.
         IMPORTANT: For the 'difficulty' field in each recipe object, you MUST use one of the following exact string values: 'Easy', 'Medium', or 'Hard'.
         Ensure the output is a valid JSON array of exactly 3 recipe objects that adheres to the provided schema.
     `;
