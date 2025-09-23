@@ -45,13 +45,17 @@ export async function POST(req: Request) {
                 },
                 required: ["calories", "protein"]
             },
+            imageUrl: {
+              type: Type.STRING,
+              description: "A URL for a high-quality, relevant image of the finished dish from source.unsplash.com. Example: 'https://source.unsplash.com/500x300/?pasta,tomatoes'"
+            },
         },
-        required: ["recipeName", "description", "prepTime", "difficulty", "ingredients", "instructions", "cuisineOrigin", "nutritionInfo"],
+        required: ["recipeName", "description", "prepTime", "difficulty", "ingredients", "instructions", "cuisineOrigin", "nutritionInfo", "imageUrl"],
     };
 
     const basePrompt = cuisine === 'Global'
-      ? `You are a world-class chef and food historian specializing in global and regional cuisines. Based on the following ingredients, generate 3 diverse and delicious recipes from different parts of the world. For each recipe: - Briefly mention its origin or the cuisine it belongs to in the description. - Provide a short, interesting historical or cultural fact about the cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about the cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving.`
-      : `You are a world-class chef and food historian specializing in authentic ${cuisine} cuisine. Based on the following ingredients, generate 3 delicious ${cuisine} recipes. For each recipe: - Briefly mention its significance or origin within ${cuisine} culture in the description. - Provide a short, interesting historical or cultural fact about ${cuisine} cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about ${cuisine} cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving.`;
+      ? `You are a world-class chef and food historian specializing in global and regional cuisines. Based on the following ingredients, generate 3 diverse and delicious recipes from different parts of the world. For each recipe: - Briefly mention its origin or the cuisine it belongs to in the description. - Provide a short, interesting historical or cultural fact about the cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about the cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving. - Generate a relevant, high-quality image URL for the dish using the Unsplash API format: 'https://source.unsplash.com/500x300/?query', where 'query' is 2-3 relevant, comma-separated keywords for the dish (e.g., 'pasta,tomatoes,basil').`
+      : `You are a world-class chef and food historian specializing in authentic ${cuisine} cuisine. Based on the following ingredients, generate 3 delicious ${cuisine} recipes. For each recipe: - Briefly mention its significance or origin within ${cuisine} culture in the description. - Provide a short, interesting historical or cultural fact about ${cuisine} cuisine. - Provide a valid, relevant URL (e.g., a Wikipedia page or a reputable food blog) to learn more about ${cuisine} cuisine. - Provide an estimated calorie count (e.g., "450 kcal") and protein content (e.g., "30g") per serving. - Generate a relevant, high-quality image URL for the dish using the Unsplash API format: 'https://source.unsplash.com/500x300/?query', where 'query' is 2-3 relevant, comma-separated keywords for the dish (e.g., 'curry,chicken,rice').`;
     
     const prompt = `
         ${basePrompt}
@@ -59,6 +63,7 @@ export async function POST(req: Request) {
         The recipes can include other common pantry staples.
         Prioritize using the provided ingredients creatively. Be inventive and suggest dishes that offer a unique twist or are less commonly known, while still being accessible to a home cook.
         IMPORTANT: For the 'difficulty' field in each recipe object, you MUST use one of the following exact string values: 'Easy', 'Medium', or 'Hard'.
+        IMPORTANT: The imageUrl MUST be a valid, public URL from source.unsplash.com.
         Ensure the output is a valid JSON array of exactly 3 recipe objects that adheres to the provided schema.
     `;
 
